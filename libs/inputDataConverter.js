@@ -1,13 +1,15 @@
+let globals = require('../globals');
+
 class InputRowConverter {
-    constructor(journey) {
-        this.date = journey.Date;
-        this.startTimeInHoursAndMinutes = journey['Start Time'];
-        this.endTimeInHoursAndMinutes = journey['End Time'];
-        this.journeyDescription = journey['Journey/Action'];
-        this.charge = journey.Charge;
-        this.credit = journey.Credit;
-        this.balance = journey.Balance;
-        this.note = journey.Note;
+    constructor(inputRow) {
+        this.date = inputRow.Date;
+        this.startTimeInHoursAndMinutes = inputRow['Start Time'];
+        this.endTimeInHoursAndMinutes = inputRow['End Time'];
+        this.journeyDescription = inputRow['Journey/Action'];
+        this.charge = inputRow.Charge;
+        this.credit = inputRow.Credit;
+        this.balance = inputRow.Balance;
+        this.note = inputRow.Note;
     }
 
     getStationType() {
@@ -16,12 +18,9 @@ class InputRowConverter {
     }
 
     getDateTime(time) {
-        if (!time) {
-            return null;
-        }
         let splitDate = this.date.match(/(?<day>\d{2})-(?<monthAbbreviation>\w{3})-(?<year>\d{4})/).groups;
         let splitTime = time.match(/(?<hour>\d{2}):(?<minute>\d{2})/).groups;
-        return new Date(splitDate.year, monthDictionary[splitDate.monthAbbreviation], splitDate.day, splitTime.hour, splitTime.minute);
+        return new Date(splitDate.year, globals.monthDictionary[splitDate.monthAbbreviation], splitDate.day, splitTime.hour, splitTime.minute);
     }
 
 }
@@ -34,11 +33,11 @@ class RailJourneyInputRowConverter extends InputRowConverter {
     }
 
     getStartTime() {
-        return super.getDateTime(this.startTimeInHoursAndMinutes);
+        return this.startTimeInHoursAndMinutes ? super.getDateTime(this.startTimeInHoursAndMinutes) : null;
     }
 
     getEndTime() {
-        return super.getDateTime(this.endTimeInHoursAndMinutes);
+        return this.endTimeInHoursAndMinutes ? super.getDateTime(this.endTimeInHoursAndMinutes) : null;
     }
 
     getStartStationType() {
@@ -46,30 +45,42 @@ class RailJourneyInputRowConverter extends InputRowConverter {
     }
 
     getStartStation() {
-        return this.parseJourneyDescription(this.endJourneyDescription).station;
+        return this.parseJourneyDescription(this.startJourneyDescription).stationName;
     }
 
     getEndStationType() {
-        return this.parseJourneyDescription(this.startJourneyDescription).stationType;
+        return this.parseJourneyDescription(this.endJourneyDescription).stationType;
     }
 
     getEndStation() {
-        return this.parseJourneyDescription(this.startJourneyDescription).station;
+        return this.parseJourneyDescription(this.endJourneyDescription).stationName;
     }
 
     parseJourneyDescription(description) {
         if (!description) {
-            return null;
+            return undefined;
         }
         description = description.replace(/(\(.*?\))/, ""); //remove any round brackets and their contents
-        if (description.match(/\[(?<station>No touch-in)\]/)) {
+        if (description.match(/\[(?<stationName>No touch-in)\]/)) {
             return {
-                station: 'No touch-in',
-                stationType: null
+                stationName: 'No touch-in',
+                stationType: undefined
             }
         }
-        let stationAndStationTypeMatch = description.match(/(?<station>.+?)\s*(?:\[(?<stationType>.*?)\])?$/i);
+        let stationAndStationTypeMatch = description.match(/(?<stationName>.+?)\s*(?:\[(?<stationType>.*?)\])?$/i);
         return stationAndStationTypeMatch ? stationAndStationTypeMatch.groups : null;//pick up station and transport method from each half
+    }
+
+    isOutsideTravelCardZones() {
+        let message = "You have been charged for travelling in zones not covered by your Travelcard.";
+        let isOutsideTravelCardZones;
+        if (this.note) {
+            isOutsideTravelCardZones = this.note.match(message) ? true : false;
+        } 
+        else {
+            isOutsideTravelCardZones = false;
+        }
+        return isOutsideTravelCardZones;
     }
 
     convert() {
@@ -81,6 +92,7 @@ class RailJourneyInputRowConverter extends InputRowConverter {
             startStationType: this.getStartStationType(),
             endStationName: this.getEndStation(),
             endStationType: this.getEndStationType(),
+            isOutsideTravelCardZones: this.isOutsideTravelCardZones(),
             charge: this.charge,
             balance: this.balance
         }
