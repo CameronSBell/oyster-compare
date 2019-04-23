@@ -2,7 +2,7 @@ const { RailJourneyInputRowConverter, BusJourneyInputRowConverter, TopUpEventInp
 const defaults = require('./libs/defaults');
 const metrics = require('./metrics');
 
-;(async function process() {
+; (async function process() {
     let inputArray = await defaults.convertCsvToJSON();
 
     console.log(inputArray);
@@ -28,6 +28,7 @@ const metrics = require('./metrics');
             seasonTicketAdditionList.push(entry);
         }
     };
+    defaults.writeAllDataToFile(railwayJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList);
 
     console.log(railwayJourneyList);
     metrics.calculateTotalDuration(railwayJourneyList);
