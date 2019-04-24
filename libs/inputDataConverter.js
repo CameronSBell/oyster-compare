@@ -71,16 +71,25 @@ class RailJourneyInputRowConverter extends InputRowConverter {
         return stationAndStationTypeMatch ? stationAndStationTypeMatch.groups : null;//pick up station and transport method from each half
     }
 
-    isOutsideTravelCardZones() {
-        let message = "You have been charged for travelling in zones not covered by your Travelcard.";
-        let isOutsideTravelCardZones;
-        if (this.note) {
-            isOutsideTravelCardZones = this.note.match(message) ? true : false;
-        } 
-        else {
-            isOutsideTravelCardZones = false;
+    isTravelcardActive() {
+        let isTravelcardActive;
+        if (this.isJourneyOutsideTravelCardZones() || (this.charge == 0 && !this.isDailyCapReached())) {
+            isTravelcardActive = true;
         }
-        return isOutsideTravelCardZones;
+        else {
+            isTravelcardActive = false;
+        }
+        return isTravelcardActive;
+    }
+
+    isDailyCapReached() {
+        let message = "This journey was cheaper or free today because you reached a daily cap";
+        return (this.note && this.note.match(message)) ? true : false;
+    }
+
+    isJourneyOutsideTravelCardZones() {
+        let message = "You have been charged for travelling in zones not covered by your Travelcard.";
+        return (this.note && this.note.match(message)) ? true : false;
     }
 
     convert() {
@@ -92,7 +101,9 @@ class RailJourneyInputRowConverter extends InputRowConverter {
             startStationType: this.getStartStationType(),
             endStationName: this.getEndStation(),
             endStationType: this.getEndStationType(),
-            isOutsideTravelCardZones: this.isOutsideTravelCardZones(),
+            isTravelcardActive: this.isTravelcardActive(),
+            isJourneyOutsideTravelCardZones: this.isTravelcardActive() ? this.isJourneyOutsideTravelCardZones() : undefined,
+            isDailyCapReached: this.isDailyCapReached(),
             charge: this.charge,
             balance: this.balance
         }
@@ -176,5 +187,6 @@ class SeasonTicketInputRowConverter extends InputRowConverter {
     }
 }
 
-module.exports = { RailJourneyInputRowConverter, BusJourneyInputRowConverter, TopUpEventInputRowConverter, SeasonTicketInputRowConverter
+module.exports = {
+    RailJourneyInputRowConverter, BusJourneyInputRowConverter, TopUpEventInputRowConverter, SeasonTicketInputRowConverter
 }
