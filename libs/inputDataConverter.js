@@ -73,7 +73,7 @@ class RailJourneyInputRowConverter extends InputRowConverter {
 
     isTravelcardActive() {
         let isTravelcardActive;
-        if (this.isJourneyOutsideTravelCardZones() || (this.charge == 0 && !this.isDailyCapReached())) {
+        if (this.isJourneyOutsideTravelcardZones() || (this.charge == 0 && !this.isDailyCapReached())) {
             isTravelcardActive = true;
         }
         else {
@@ -87,7 +87,7 @@ class RailJourneyInputRowConverter extends InputRowConverter {
         return (this.note && this.note.match(message)) ? true : false;
     }
 
-    isJourneyOutsideTravelCardZones() {
+    isJourneyOutsideTravelcardZones() {
         let message = "You have been charged for travelling in zones not covered by your Travelcard.";
         return (this.note && this.note.match(message)) ? true : false;
     }
@@ -102,7 +102,7 @@ class RailJourneyInputRowConverter extends InputRowConverter {
             endStationName: this.getEndStation(),
             endStationType: this.getEndStationType(),
             isTravelcardActive: this.isTravelcardActive(),
-            isJourneyOutsideTravelCardZones: this.isTravelcardActive() ? this.isJourneyOutsideTravelCardZones() : undefined,
+            isJourneyOutsideTravelcardZones: this.isTravelcardActive() ? this.isJourneyOutsideTravelcardZones() : undefined,
             isDailyCapReached: this.isDailyCapReached(),
             charge: this.charge,
             balance: this.balance

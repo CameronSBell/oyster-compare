@@ -4,8 +4,9 @@ const metrics = require('./metrics');
 
 ; (async function process() {
     let inputArray = await defaults.convertCsvToJSON();
+    inputArray.reverse();
 
-    console.log(inputArray);
+    //console.log(inputArray);
     railwayJourneyList = [];
     busJourneyList = [];
     seasonTicketAdditionList = [];
@@ -29,7 +30,10 @@ const metrics = require('./metrics');
         }
     };
     defaults.writeAllDataToFile(railwayJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList);
-
-    console.log(railwayJourneyList);
-    metrics.calculateTotalDuration(railwayJourneyList);
+    let travelcardPeriods = metrics.calculateTravelcardPeriods(railwayJourneyList);
+    console.log("Periods of time where a travelcard is active: ")
+    console.log(travelcardPeriods);
+    console.log("Total amount spent on journeys outside travelcard zones (£): " + metrics.calculateMoneySpentOutsideTravelCardZones(railwayJourneyList));
+    console.log("Amount spent on journeys outside travelcard zones per 28 days (£): ")
+    console.log("Total rail journey travel time (hours): " + metrics.calculateTotalDuration(railwayJourneyList));
 })();
