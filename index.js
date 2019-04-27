@@ -30,10 +30,14 @@ const metrics = require('./metrics');
         }
     };
     defaults.writeAllDataToFile(railwayJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList);
-    let travelcardPeriods = metrics.calculateTravelcardPeriods(railwayJourneyList);
+    let travelcardPeriodList = metrics.calculateTravelcardPeriods(railwayJourneyList);
+    let totalNoOfTravelcardMonths = metrics.calculateTotalNumberOfTravelcardMonths(travelcardPeriodList);
+    let totalAmountSpentOutsideTravelcardZones = metrics.calculateMoneySpentOutsideTravelCardZones(railwayJourneyList);
+    let totalRailJourneyTravelTime = metrics.calculateTotalDuration(railwayJourneyList);
     console.log("Periods of time where a travelcard is active: ")
-    console.log(travelcardPeriods);
-    console.log("Total amount spent on journeys outside travelcard zones (£): " + metrics.calculateMoneySpentOutsideTravelCardZones(railwayJourneyList));
-    console.log("Amount spent on journeys outside travelcard zones per 28 days (£): ")
-    console.log("Total rail journey travel time (hours): " + metrics.calculateTotalDuration(railwayJourneyList));
+    console.log(travelcardPeriodList);
+    console.log(`Total number of travelcard months: ${totalNoOfTravelcardMonths}`);
+    console.log(`Total amount spent on journeys outside travelcard zones (£): ${totalAmountSpentOutsideTravelcardZones}`);
+    console.log("Amount spent on journeys outside travelcard zones per travelcard month (£/month): " + totalAmountSpentOutsideTravelcardZones/totalNoOfTravelcardMonths);
+    console.log(`Total rail journey travel time (hours): ${totalRailJourneyTravelTime}`);
 })();

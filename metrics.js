@@ -2,8 +2,7 @@ function calculateTotalDuration(journeyList) {
     let totalDurationMs = 0;
     for (journey of journeyList) {
         if (journey.endTime && journey.startTime) {
-            duration = journey.endTime - journey.startTime;
-            //console.log(duration);
+            duration = journey.endTime.getTime() - journey.startTime.getTime();
             totalDurationMs += duration;
         }
     }
@@ -45,8 +44,18 @@ function calculateMoneySpentOutsideTravelCardZones(journeyList) {
     return totalAmountSpent;
 }
 
+function calculateTotalNumberOfTravelcardMonths(travelCardPeriodList) {
+    let totalDurationMs = 0;
+    for(period of travelCardPeriodList) {
+        totalDurationMs += Math.abs(period.endDatetime.getTime() - period.startDatetime.getTime());
+    }
+    const months = totalDurationMs / (1000 * 60 * 60 * 24 * 30.44)
+    return months;
+}
+
 module.exports = {
     calculateTotalDuration,
     calculateTravelcardPeriods,
-    calculateMoneySpentOutsideTravelCardZones
+    calculateMoneySpentOutsideTravelCardZones,
+    calculateTotalNumberOfTravelcardMonths
 }
