@@ -21,7 +21,7 @@ class RailJourneyMetrics {
             if (journey.isJourneyOutsideTravelcardZones) {
                 totalAmountSpent += journey.charge;
             }
-        })
+        });
         return totalAmountSpent;
     }
 
@@ -30,7 +30,7 @@ class RailJourneyMetrics {
         let travelCardPeriods = this.getTravelcardPeriods();
         travelCardPeriods.forEach(period => {
             totalDurationMs += Math.abs(period.endDatetime.getTime() - period.startDatetime.getTime());
-        })
+        });
         const months = totalDurationMs / (1000 * 60 * 60 * 24 * 30.44)
         return months;
     }
@@ -39,23 +39,23 @@ class RailJourneyMetrics {
         let startDatetime;
         let endDatetime;
         let travelCardPeriodList = [];
-        for (let i = 0; i < this.journeyList.length; i++) {
-            if (this.journeyList[i].isTravelcardActive && !startDatetime) {
-                startDatetime = this.journeyList[i].startTime ? this.journeyList[i].startTime : this.journeyList[i].endTime;
+        this.journeyList.forEach((journey, index, array) => {
+            if (journey.isTravelcardActive && !startDatetime) {
+                startDatetime = journey.startTime ? journey.startTime : journey.endTime;
             }
-            if (this.journeyList[i].isTravelcardActive) {
-                endDatetime = this.journeyList[i].startTime ? this.journeyList[i].startTime : this.journeyList[i].endTime;
+            if (journey.isTravelcardActive) {
+                endDatetime = journey.startTime ? journey.startTime : journey.endTime;
             }
-            if (!this.journeyList[i].isTravelcardActive && startDatetime && endDatetime) {
+            if (!journey.isTravelcardActive && startDatetime && endDatetime) {
                 travelCardPeriodList.push({ startDatetime, endDatetime });
                 startDatetime = null;
                 endDatetime = null;
             }
-            if (this.journeyList[i].isTravelcardActive && (i == this.journeyList.length - 1)) {
-                endDatetime = this.journeyList[i].startTime ? this.journeyList[i].startTime : this.journeyList[i].endTime;
+            if (journey.isTravelcardActive && (index == array.length - 1)) {
+                endDatetime = journey.startTime ? journey.startTime : journey.endTime;
                 travelCardPeriodList.push({ startDatetime, endDatetime });
             }
-        }
+        });
         return travelCardPeriodList;
     };
 }
