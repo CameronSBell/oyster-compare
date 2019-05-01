@@ -23,9 +23,9 @@ function getEventType(inputRow) {
     return eventType;
 }
 
-function writeAllDataToFile(railwayJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList) {
-    let railwayJourneyData = JSON.stringify(railwayJourneyList, null, 2);
-    fs.writeFileSync(config.railwayJourneysFilePath, railwayJourneyData)
+function writeAllDataToFile(railJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList) {
+    let railJourneyData = JSON.stringify(railJourneyList, null, 2);
+    fs.writeFileSync(config.railJourneysFilePath, railJourneyData)
 
     let busJourneyData = JSON.stringify(busJourneyList, null, 2);
     fs.writeFileSync(config.busJourneysFilePath, busJourneyData)

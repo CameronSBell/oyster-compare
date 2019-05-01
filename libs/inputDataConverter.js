@@ -12,12 +12,12 @@ class InputRowConverter {
         this.note = inputRow.Note;
     }
 
-    getStationType() {
+    _getStationType() {
         let stationType = new RegExp(/\[(?<stationType>.+?)\]/);
         return this.journeyDescription.match(stationType) ? this.journeyDescription.match(stationType).groups.stationType : null;
     }
 
-    getDateTime(time) {
+    _getDateTime(time) {
         let splitDate = this.date.match(/(?<day>\d{2})-(?<monthAbbreviation>\w{3})-(?<year>\d{4})/).groups;
         let splitTime = time.match(/(?<hour>\d{2}):(?<minute>\d{2})/).groups;
         return new Date(splitDate.year, globals.monthDictionary[splitDate.monthAbbreviation], splitDate.day, splitTime.hour, splitTime.minute);
@@ -32,31 +32,48 @@ class RailJourneyInputRowConverter extends InputRowConverter {
         this.endJourneyDescription = this.journeyDescription.split(/ to /)[1];
     }
 
-    getStartTime() {
-        return this.startTimeInHoursAndMinutes ? super.getDateTime(this.startTimeInHoursAndMinutes) : null;
+    convert() {
+        return {
+            startTime: this._getStartTime(),
+            endTime: this._getEndTime(),
+            journeyDescription: this.journeyDescription,
+            startStationName: this._getStartStation(),
+            startStationType: this._getStartStationType(),
+            endStationName: this._getEndStation(),
+            endStationType: this._getEndStationType(),
+            isTravelcardActive: this._isTravelcardActive(),
+            isJourneyOutsideTravelcardZones: this._isTravelcardActive() ? this._isJourneyOutsideTravelcardZones() : undefined,
+            isDailyCapReached: this._isDailyCapReached(),
+            charge: this.charge,
+            balance: this.balance
+        }
     }
 
-    getEndTime() {
-        return this.endTimeInHoursAndMinutes ? super.getDateTime(this.endTimeInHoursAndMinutes) : null;
+    _getStartTime() {
+        return this.startTimeInHoursAndMinutes ? super._getDateTime(this.startTimeInHoursAndMinutes) : null;
     }
 
-    getStartStationType() {
-        return this.parseJourneyDescription(this.startJourneyDescription).stationType;
+    _getEndTime() {
+        return this.endTimeInHoursAndMinutes ? super._getDateTime(this.endTimeInHoursAndMinutes) : null;
     }
 
-    getStartStation() {
-        return this.parseJourneyDescription(this.startJourneyDescription).stationName;
+    _getStartStationType() {
+        return this._parseJourneyDescription(this.startJourneyDescription).stationType;
     }
 
-    getEndStationType() {
-        return this.parseJourneyDescription(this.endJourneyDescription).stationType;
+    _getStartStation() {
+        return this._parseJourneyDescription(this.startJourneyDescription).stationName;
     }
 
-    getEndStation() {
-        return this.parseJourneyDescription(this.endJourneyDescription).stationName;
+    _getEndStationType() {
+        return this._parseJourneyDescription(this.endJourneyDescription).stationType;
     }
 
-    parseJourneyDescription(description) {
+    _getEndStation() {
+        return this._parseJourneyDescription(this.endJourneyDescription).stationName;
+    }
+
+    _parseJourneyDescription(description) {
         if (!description) {
             return undefined;
         }
@@ -71,9 +88,9 @@ class RailJourneyInputRowConverter extends InputRowConverter {
         return stationAndStationTypeMatch ? stationAndStationTypeMatch.groups : null;//pick up station and transport method from each half
     }
 
-    isTravelcardActive() {
+    _isTravelcardActive() {
         let isTravelcardActive;
-        if (this.isJourneyOutsideTravelcardZones() || (this.charge == 0 && !this.isDailyCapReached())) {
+        if (this._isJourneyOutsideTravelcardZones() || (this.charge == 0 && !this._isDailyCapReached())) {
             isTravelcardActive = true;
         }
         else {
@@ -82,31 +99,14 @@ class RailJourneyInputRowConverter extends InputRowConverter {
         return isTravelcardActive;
     }
 
-    isDailyCapReached() {
+    _isDailyCapReached() {
         let message = "This journey was cheaper or free today because you reached a daily cap";
         return (this.note && this.note.match(message)) ? true : false;
     }
 
-    isJourneyOutsideTravelcardZones() {
+    _isJourneyOutsideTravelcardZones() {
         let message = "You have been charged for travelling in zones not covered by your Travelcard.";
         return (this.note && this.note.match(message)) ? true : false;
-    }
-
-    convert() {
-        return {
-            startTime: this.getStartTime(),
-            endTime: this.getEndTime(),
-            journeyDescription: this.journeyDescription,
-            startStationName: this.getStartStation(),
-            startStationType: this.getStartStationType(),
-            endStationName: this.getEndStation(),
-            endStationType: this.getEndStationType(),
-            isTravelcardActive: this.isTravelcardActive(),
-            isJourneyOutsideTravelcardZones: this.isTravelcardActive() ? this.isJourneyOutsideTravelcardZones() : undefined,
-            isDailyCapReached: this.isDailyCapReached(),
-            charge: this.charge,
-            balance: this.balance
-        }
     }
 }
 
@@ -115,12 +115,23 @@ class BusJourneyInputRowConverter extends InputRowConverter {
         super(journey);
     }
 
-    getBusRoute() {
+    convert() {
+        return {
+            startTime: super._getDateTime(this.startTimeInHoursAndMinutes),
+            journeyDescription: this.journeyDescription,
+            route: this._getBusRoute(),
+            isHopperFare: this._isHopperFare(),
+            charge: this.charge,
+            balance: this.balance
+        }
+    }
+
+    _getBusRoute() {
         let busRoute = new RegExp(/(?:Bus journey).*(?:route)\s{1}(?<busRoute>\w+)/);
         return this.journeyDescription.match(busRoute) ? this.journeyDescription.match(busRoute).groups.busRoute : null;
     }
 
-    isHopperFare() {
+    _isHopperFare() {
         let hopperFareMessage = "You have not been charged for this journey as it is viewed as a continuation of your previous journey"
         let isHopperFare;
         if (this.note) {
@@ -131,17 +142,6 @@ class BusJourneyInputRowConverter extends InputRowConverter {
         }
         return isHopperFare;
     }
-
-    convert() {
-        return {
-            startTime: super.getDateTime(this.startTimeInHoursAndMinutes),
-            journeyDescription: this.journeyDescription,
-            route: this.getBusRoute(),
-            isHopperFare: this.isHopperFare(),
-            charge: this.charge,
-            balance: this.balance
-        }
-    }
 }
 
 class TopUpEventInputRowConverter extends InputRowConverter {
@@ -149,20 +149,20 @@ class TopUpEventInputRowConverter extends InputRowConverter {
         super(journey)
     }
 
-    getLocation() {
-        let location = new RegExp(/Topped-up on touch in(?:\,\s)(?<station>.+?)(?:(?:\s\[.+?\])|\s)$/);
-        return this.journeyDescription.match(location) ? this.journeyDescription.match(location).groups.station : null;
-        //"Topped-up on touch in, Cannon Street [National Rail]"
-    }
-
     convert() {
         return {
-            time: super.getDateTime(this.startTimeInHoursAndMinutes),
-            location: this.getLocation(),
-            stationType: super.getStationType(),
+            time: super._getDateTime(this.startTimeInHoursAndMinutes),
+            location: this._getLocation(),
+            stationType: super._getStationType(),
             topUpAmount: this.credit,
             balance: this.balance
         }
+    }
+
+    _getLocation() {
+        let location = new RegExp(/Topped-up on touch in(?:\,\s)(?<station>.+?)(?:(?:\s\[.+?\])|\s)$/);
+        return this.journeyDescription.match(location) ? this.journeyDescription.match(location).groups.station : null;
+        //"Topped-up on touch in, Cannon Street [National Rail]"
     }
 }
 
@@ -171,19 +171,19 @@ class SeasonTicketInputRowConverter extends InputRowConverter {
         super(row);
     }
 
-    getLocation() {
+    convert() {
+        return {
+            time: super._getDateTime(this.startTimeInHoursAndMinutes),
+            location: this._getLocation(),
+            stationType: super._getStationType(),
+            balance: this.balance
+        }
+    }
+
+    _getLocation() {
         //"Season ticket added on touch in, Cannon Street [National Rail]"
         let location = new RegExp(/Season ticket added on touch in(?:\,\s)(?<station>.+?)(?:(?:\s\[.+?\])|\s)$/);
         return this.journeyDescription.match(location) ? this.journeyDescription.match(location).groups.station : null;
-    }
-
-    convert() {
-        return {
-            time: super.getDateTime(this.startTimeInHoursAndMinutes),
-            location: this.getLocation(),
-            stationType: super.getStationType(),
-            balance: this.balance
-        }
     }
 }
 
