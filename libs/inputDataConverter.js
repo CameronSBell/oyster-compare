@@ -22,7 +22,6 @@ class InputRowConverter {
         let splitTime = time.match(/(?<hour>\d{2}):(?<minute>\d{2})/).groups;
         return new Date(splitDate.year, globals.monthDictionary[splitDate.monthAbbreviation], splitDate.day, splitTime.hour, splitTime.minute);
     }
-
 }
 
 class RailJourneyInputRowConverter extends InputRowConverter {
@@ -37,10 +36,10 @@ class RailJourneyInputRowConverter extends InputRowConverter {
             startTime: this._getStartTime(),
             endTime: this._getEndTime(),
             journeyDescription: this.journeyDescription,
-            startStationName: this._getStartStation(),
-            startStationType: this._getStartStationType(),
-            endStationName: this._getEndStation(),
-            endStationType: this._getEndStationType(),
+            startStationName: this._getStartStation().name,
+            startStationType: this._getStartStation().type,
+            endStationName: this._getEndStation().name,
+            endStationType: this._getEndStation().type,
             isTravelcardActive: this._isTravelcardActive(),
             isJourneyOutsideTravelcardZones: this._isTravelcardActive() ? this._isJourneyOutsideTravelcardZones() : undefined,
             isDailyCapReached: this._isDailyCapReached(),
@@ -57,23 +56,15 @@ class RailJourneyInputRowConverter extends InputRowConverter {
         return this.endTimeInHoursAndMinutes ? super._getDateTime(this.endTimeInHoursAndMinutes) : null;
     }
 
-    _getStartStationType() {
-        return this._parseJourneyDescription(this.startJourneyDescription).stationType;
-    }
-
     _getStartStation() {
-        return this._parseJourneyDescription(this.startJourneyDescription).stationName;
-    }
-
-    _getEndStationType() {
-        return this._parseJourneyDescription(this.endJourneyDescription).stationType;
+        return this._getStation(this.startJourneyDescription);
     }
 
     _getEndStation() {
-        return this._parseJourneyDescription(this.endJourneyDescription).stationName;
+        return this._getStation(this.endJourneyDescription);
     }
 
-    _parseJourneyDescription(description) {
+    _getStation(description) {
         if (!description) {
             return undefined;
         }
@@ -99,13 +90,13 @@ class RailJourneyInputRowConverter extends InputRowConverter {
         return isTravelcardActive;
     }
 
-    _isDailyCapReached() {
-        let message = "This journey was cheaper or free today because you reached a daily cap";
+    _isJourneyOutsideTravelcardZones() {
+        let message = "You have been charged for travelling in zones not covered by your Travelcard.";
         return (this.note && this.note.match(message)) ? true : false;
     }
 
-    _isJourneyOutsideTravelcardZones() {
-        let message = "You have been charged for travelling in zones not covered by your Travelcard.";
+    _isDailyCapReached() {
+        let message = "This journey was cheaper or free today because you reached a daily cap";
         return (this.note && this.note.match(message)) ? true : false;
     }
 }
@@ -133,14 +124,7 @@ class BusJourneyInputRowConverter extends InputRowConverter {
 
     _isHopperFare() {
         let hopperFareMessage = "You have not been charged for this journey as it is viewed as a continuation of your previous journey"
-        let isHopperFare;
-        if (this.note) {
-            isHopperFare = this.note.match(hopperFareMessage) ? true : false;
-        }
-        else {
-            isHopperFare = false;
-        }
-        return isHopperFare;
+        return (this.note && this.note.match(hopperFareMessage)) ? true : false;
     }
 }
 
