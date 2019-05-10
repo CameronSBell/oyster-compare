@@ -1,4 +1,5 @@
-const csvFilePath = 'data/input/test1.csv'
+const csvFilePath = 'data/input/test1.csv';
+const csvDirectoryPath ='data/input';
 
 const railJourneysFilePath = 'data/intermediate/railJourneys.json'
 const busJourneysFilePath = 'data/intermediate/busJourneys.json'
@@ -16,6 +17,7 @@ const csvParserParameters = {
 
 module.exports = { 
     csvFilePath,
+    csvDirectoryPath,
     csvParserParameters,
     railJourneysFilePath,
     busJourneysFilePath,

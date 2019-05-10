@@ -5,15 +5,17 @@ const config = require('./config');
 const globals = require('./globals');
 
 ; (async function process() {
-    let inputArray = await defaults.convertCsvToJSON();
-    inputArray.reverse();
+    let rawOysterHistory = await defaults.convertCsvToJSON();
+    let completeOysterHistory = defaults.removeDuplicatesFromArray(rawOysterHistory);
 
-    //console.log(inputArray);
+    console.log(`You supplied ${completeOysterHistory.length} unique oyster history entries.`); 
+    console.log(`${rawOysterHistory.length - completeOysterHistory.length} duplicates were removed.`);
+
     railJourneyList = [];
     busJourneyList = [];
     seasonTicketAdditionList = [];
     topUpEventList = [];
-    for (inputRow of inputArray) {
+    for (inputRow of completeOysterHistory) {
         if (defaults.getEventType(inputRow) == "railJourney") {
             const entry = new RailJourneyInputRowConverter(inputRow).convert();
             railJourneyList.push(entry);
@@ -33,7 +35,7 @@ const globals = require('./globals');
     };
 
     defaults.writeAllDataToFile(railJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList);
-    console.log(railJourneyList);
+
     let metric = new metrics.RailJourneyMetrics(railJourneyList);
     let totalNoOfTravelcardMonths = metric.getTotalNumberOfTravelcardMonths();
     let totalAmountSpentOutsideTravelcardZones = metric.getMoneySpentOutsideTravelCardZones();

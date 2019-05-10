@@ -3,7 +3,35 @@ const csv = require('csvtojson');
 const fs = require('fs');
 
 async function convertCsvToJSON() {
-    return jsonArray = await csv(config.csvParserParameters).fromFile(config.csvFilePath);
+    let completeInputJSON = [];
+
+    let promise = new Promise(function (resolve, reject) {
+        fs.readdir(config.csvDirectoryPath, function (err, filenames) {
+            if (err)
+                reject(err);
+            else
+                resolve(filenames);
+        });
+    });
+
+    return promise.then(async (files) => {
+        for (let file of files) {
+            let json = await csv(config.csvParserParameters).fromFile(config.csvDirectoryPath + "\\" + file);
+            completeInputJSON.push(...json);
+        }
+        console.log(`Names of input files supplied: ${files}`);
+        return completeInputJSON;
+    }).catch(error => {
+        throw error
+    });
+}
+
+function removeDuplicatesFromArray(array) {
+    return array.filter((obj1, index) => {
+        return index === array.findIndex(obj2 => {
+            return JSON.stringify(obj1) === JSON.stringify(obj2);
+        })
+    });
 }
 
 function getEventType(inputRow) {
@@ -49,6 +77,7 @@ const journeyRow = {
 
 module.exports = {
     convertCsvToJSON,
+    removeDuplicatesFromArray,
     getEventType,
     writeAllDataToFile
 }
