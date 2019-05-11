@@ -34,14 +34,19 @@ const globals = require('./globals');
         }
     };
 
+    railJourneyList.sort(defaults.compareJourneys);
+    busJourneyList.sort(defaults.compareJourneys);
+    topUpEventList.sort(defaults.compareEvents);
+    seasonTicketAdditionList.sort(defaults.compareEvents);
+
     defaults.writeAllDataToFile(railJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList);
 
-    let metric = new metrics.RailJourneyMetrics(railJourneyList);
-    let totalNoOfTravelcardMonths = metric.getTotalNumberOfTravelcardMonths();
-    let totalAmountSpentOutsideTravelcardZones = metric.getMoneySpentOutsideTravelCardZones();
-    let totalRailJourneyTravelTime = metric.getTotalTravelDuration();
+    let railJourneys = new metrics.RailJourneyMetrics(railJourneyList);
+    let totalNoOfTravelcardMonths = railJourneys.getTotalNumberOfTravelcardMonths();
+    let totalAmountSpentOutsideTravelcardZones = railJourneys.getMoneySpentOutsideTravelCardZones();
+    let totalRailJourneyTravelTime = railJourneys.getTotalTravelDuration();
     let yearlyTravelcardPrice = globals.yearlyTravelcardDictionary[config.currentTravelcardZones.start][config.currentTravelcardZones.end];
-    let yearlyTravelcardSaving = (12 * (totalAmountSpentOutsideTravelcardZones + 130)) - yearlyTravelcardPrice;
+    let yearlyTravelcardSaving = (12 * (totalAmountSpentOutsideTravelcardZones/totalNoOfTravelcardMonths + 130)) - yearlyTravelcardPrice;
 
     console.log("These values are based on the oyster card history you supplied:\n");
     console.log(`Total number of travelcard months: ${totalNoOfTravelcardMonths}`);
