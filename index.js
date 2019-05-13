@@ -1,4 +1,5 @@
 const { RailJourneyInputRowConverter, BusJourneyInputRowConverter, TopUpEventInputRowConverter, SeasonTicketInputRowConverter } = require('./libs/inputDataConverter');
+const { InputRowEventChecker } = require('./libs/inputRowEventChecker')
 const defaults = require('./libs/defaults');
 const metrics = require('./libs/metrics');
 const config = require('./config');
@@ -16,19 +17,20 @@ const globals = require('./globals');
     seasonTicketAdditionList = [];
     topUpEventList = [];
     for (inputRow of completeOysterHistory) {
-        if (defaults.getEventType(inputRow) == "railJourney") {
+        let check = new InputRowEventChecker(inputRow);
+        if (check.isRailJourney()) {
             const entry = new RailJourneyInputRowConverter(inputRow).convert();
             railJourneyList.push(entry);
         }
-        if (defaults.getEventType(inputRow) == "busJourney") {
+        if (check.isBusJourney()) {
             const entry = new BusJourneyInputRowConverter(inputRow).convert();
             busJourneyList.push(entry);
         }
-        if (defaults.getEventType(inputRow) == "topUp") {
+        if (check.isTopUp()) {
             const entry = new TopUpEventInputRowConverter(inputRow).convert();
             topUpEventList.push(entry);
         }
-        if (defaults.getEventType(inputRow) == "seasonTicketAddition") {
+        if (check.isSeasonTicketAddition()) {
             const entry = new SeasonTicketInputRowConverter(inputRow).convert();
             seasonTicketAdditionList.push(entry);
         }
@@ -55,5 +57,5 @@ const globals = require('./globals');
     console.log(`\nTotal rail journey travel time (hours): ${totalRailJourneyTravelTime}\n`);
     console.log(`Cost of yearly travelcard for Zones ${config.currentTravelcardZones.start}-${config.currentTravelcardZones.end} (£): ${globals.yearlyTravelcardDictionary[config.currentTravelcardZones.start][config.currentTravelcardZones.end]}`);
     console.log(`Yearly saving with yearly travelcard over monthly travelcard, based on currently monthly costs (£):  ${yearlyTravelcardSaving}`);
-    console.log(`Monthly saving with yearly travelcard: ${yearlyTravelcardSaving/12}`);
+    console.log(`Monthly saving with yearly travelcard (£): ${yearlyTravelcardSaving/12}`);
 })();
