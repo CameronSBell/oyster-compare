@@ -1,4 +1,5 @@
 let config = require('../config');
+let path = require('path');
 const csv = require('csvtojson');
 const fs = require('fs');
 
@@ -6,7 +7,7 @@ async function convertCsvToJSON() {
     let completeInputJSON = [];
 
     let promise = new Promise(function (resolve, reject) {
-        fs.readdir(config.csvDirectoryPath, function (err, filenames) {
+        fs.readdir(config.csvInputDirectoryPath, function (err, filenames) {
             if (err)
                 reject(err);
             else
@@ -16,7 +17,7 @@ async function convertCsvToJSON() {
 
     return promise.then(async (files) => {
         for (let file of files) {
-            let json = await csv(config.csvParserParameters).fromFile(config.csvDirectoryPath + "\\" + file);
+            let json = await csv(config.csvParserParameters).fromFile(config.csvInputDirectoryPath + "\\" + file);
             completeInputJSON.push(...json);
         }
         console.log(`Names of input files supplied: ${files}`);
@@ -34,27 +35,27 @@ function removeDuplicatesFromArray(array) {
     });
 }
 
-function compareJourneys(a,b) {
+function compareJourneys(a, b) {
     let compareCondition;
-    if(a.startTime && b.startTime) {
+    if (a.startTime && b.startTime) {
         compareCondition = a.startTime.getTime() - b.startTime.getTime();
-    } 
+    }
     else if (a.endTime && b.endTime) {
         compareCondition = a.endTime.getTime() - b.endTime.getTime();
-    } 
-    else if(a.startTime && b.endTime) {
+    }
+    else if (a.startTime && b.endTime) {
         compareCondition = a.startTime.getTime() - b.endTime.getTime();
-    } 
-    else if(a.endTime && b.startTime) {
+    }
+    else if (a.endTime && b.startTime) {
         compareCondition = a.endTime.getTime() - b.startTime.getTime();
-    } 
+    }
     else {
         throw new Error(`Neither a startTime nor endTime was found for the following two journeys: ${a} ${b}`);
     }
     return compareCondition;
 }
 
-function compareEvents(a,b) {
+function compareEvents(a, b) {
     return a.time.getTime() - b.time.getTime();
 }
 
@@ -77,16 +78,16 @@ function getEventType(inputRow) {
 
 function writeAllDataToFile(railJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList) {
     let railJourneyData = JSON.stringify(railJourneyList, null, 2);
-    fs.writeFileSync(config.railJourneysFilePath, railJourneyData)
+    fs.writeFileSync(path.join(config.intermediateDataDirectoryPath, config.railJourneysFileName), railJourneyData)
 
     let busJourneyData = JSON.stringify(busJourneyList, null, 2);
-    fs.writeFileSync(config.busJourneysFilePath, busJourneyData)
+    fs.writeFileSync(path.join(config.intermediateDataDirectoryPath, config.busJourneysFileName), busJourneyData)
 
     let topUpEventData = JSON.stringify(topUpEventList, null, 2);
-    fs.writeFileSync(config.topUpEventsFilePath, topUpEventData)
+    fs.writeFileSync(path.join(config.intermediateDataDirectoryPath, config.topUpEventsFileName), topUpEventData)
 
     let seasonTicketAdditionData = JSON.stringify(seasonTicketAdditionList, null, 2);
-    fs.writeFileSync(config.seasonTicketAdditionsFilePath, seasonTicketAdditionData)
+    fs.writeFileSync(path.join(config.intermediateDataDirectoryPath, config.seasonTicketAdditionsFileName), seasonTicketAdditionData)
 }
 
 const journeyRow = {

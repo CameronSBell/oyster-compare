@@ -15,7 +15,34 @@ exports.monthDictionary = {
     "Dec": 11
 }
 
-exports.yearlyTravelcardDictionary = {
+exports.monthlyTravelcardPriceDictionary = {
+    "1": {
+        "1": 134.8,
+        "2": 134.8,
+        "3": 158.3,
+        "4": 194,
+        "5": 230.4,
+        "6": 246.6,
+        "7": 268.1
+    },
+    "2": {
+        "2": 101,
+        "3": 101,
+        "4": 111.8,
+        "5": 134.1,
+        "6": 168.6,
+        "7": 175.2
+    },
+    "3": {
+        "3": 101,
+        "4": 101,
+        "5": 111.8,
+        "6": 134.1,
+        "7": 175.2
+    }
+}
+
+exports.yearlyTravelcardPriceDictionary = {
     "1": {
         "1": 1404,
         "2": 1404,

@@ -1,10 +1,10 @@
-const csvFilePath = 'data/input/test1.csv';
-const csvDirectoryPath ='data/input';
+const csvInputDirectoryPath ='data/input';
 
-const railJourneysFilePath = 'data/intermediate/railJourneys.json'
-const busJourneysFilePath = 'data/intermediate/busJourneys.json'
-const topUpEventsFilePath = 'data/intermediate/topUpEvents.json'
-const seasonTicketAdditionsFilePath = 'data/intermediate/seasonTicketAdditions.json'
+const intermediateDataDirectoryPath = 'data/intermediate';
+const railJourneysFileName = 'railJourneys.json'
+const busJourneysFileName = 'busJourneys.json'
+const topUpEventsFileName = 'topUpEvents.json'
+const seasonTicketAdditionsFileName = 'seasonTicketAdditions.json'
 const currentTravelcardZones = {
     start: 1,
     end: 2
@@ -15,13 +15,13 @@ const csvParserParameters = {
     ignoreEmpty: true
 }
 
-module.exports = { 
-    csvFilePath,
-    csvDirectoryPath,
+module.exports = {
+    intermediateDataDirectoryPath,
+    csvInputDirectoryPath,
     csvParserParameters,
-    railJourneysFilePath,
-    busJourneysFilePath,
-    topUpEventsFilePath,
-    seasonTicketAdditionsFilePath,
+    railJourneysFileName,
+    busJourneysFileName,
+    topUpEventsFileName,
+    seasonTicketAdditionsFileName,
     currentTravelcardZones: currentTravelcardZones
 }
