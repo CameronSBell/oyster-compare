@@ -1,9 +1,35 @@
+const globals = require("../globals");
+const config = require("../config");
+
 class RailJourneyMetrics {
     constructor(journeyList) {
         this.journeyList = journeyList;
+        this.yearlyTravelcardPrice = globals.yearlyTravelcardPriceDictionary[config.currentTravelcardZones.start][config.currentTravelcardZones.end];
+        this.monthlyTravelcardPrice = globals.monthlyTravelcardPriceDictionary[config.currentTravelcardZones.start][config.currentTravelcardZones.end];
     }
 
-    getTotalTravelDuration() {
+    print() {
+        this.totalNoOfTravelcardMonths = this._getTotalNumberOfTravelcardMonths();
+        this.totalAmountSpentOutsideTravelcardZones = this._getMoneySpentOutsideTravelCardZones();
+        this.totalRailJourneyTravelTime = this._getTotalTravelDuration();
+        this.yearlyTravelcardSaving = this._getYearlyTravelcardSaving();
+    
+        console.log("These values are based on the oyster card history you supplied:\n");
+        console.log(`Total number of travelcard months: ${this.totalNoOfTravelcardMonths}`);
+        console.log(`Total amount spent on journeys outside travelcard zones (£): ${this.totalAmountSpentOutsideTravelcardZones}`);
+        console.log("Amount spent on journeys outside travelcard zones per travelcard month (£/month): " + this.totalAmountSpentOutsideTravelcardZones/this.totalNoOfTravelcardMonths);
+        console.log(`\nTotal rail journey travel time (hours): ${this.totalRailJourneyTravelTime}\n`);
+        console.log(`Cost of yearly travelcard for Zones ${config.currentTravelcardZones.start}-${config.currentTravelcardZones.end} (£): ${this.yearlyTravelcardPrice}`);
+        console.log(`Yearly saving with yearly travelcard over monthly travelcard, based on currently monthly costs (£):  ${this.yearlyTravelcardSaving}`);
+        console.log(`Monthly saving with yearly travelcard (£): ${this.yearlyTravelcardSaving/12}`);
+    }
+
+    _getYearlyTravelcardSaving() {
+        let effectiveMonthlyCost = (this.totalAmountSpentOutsideTravelcardZones/this.totalNoOfTravelcardMonths) + this.monthlyTravelcardPrice;
+        return (12 * (effectiveMonthlyCost)) - this.yearlyTravelcardPrice;
+    }
+
+    _getTotalTravelDuration() {
         let totalDurationMs = 0;
         this.journeyList.forEach(journey => {
             if (journey.endTime && journey.startTime) {
@@ -15,7 +41,7 @@ class RailJourneyMetrics {
         return totalDurationInHours;
     };
 
-    getMoneySpentOutsideTravelCardZones() {
+    _getMoneySpentOutsideTravelCardZones() {
         let totalAmountSpent = 0;
         this.journeyList.forEach(journey => {
             if (journey.isJourneyOutsideTravelcardZones) {
@@ -25,9 +51,9 @@ class RailJourneyMetrics {
         return totalAmountSpent;
     }
 
-    getTotalNumberOfTravelcardMonths() {
+    _getTotalNumberOfTravelcardMonths() {
         let totalDurationMs = 0;
-        let travelCardPeriods = this.getTravelcardPeriods();
+        let travelCardPeriods = this._getTravelcardPeriods();
         travelCardPeriods.forEach(period => {
             totalDurationMs += Math.abs(period.endDatetime.getTime() - period.startDatetime.getTime());
         });
@@ -35,7 +61,7 @@ class RailJourneyMetrics {
         return months;
     }
 
-    getTravelcardPeriods() {
+    _getTravelcardPeriods() {
         let startDatetime;
         let endDatetime;
         let travelCardPeriodList = [];

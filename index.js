@@ -43,20 +43,6 @@ const globals = require('./globals');
 
     defaults.writeAllDataToFile(railJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList);
 
-    let railJourneys = new metrics.RailJourneyMetrics(railJourneyList);
-    let totalNoOfTravelcardMonths = railJourneys.getTotalNumberOfTravelcardMonths();
-    let totalAmountSpentOutsideTravelcardZones = railJourneys.getMoneySpentOutsideTravelCardZones();
-    let totalRailJourneyTravelTime = railJourneys.getTotalTravelDuration();
-    let yearlyTravelcardPrice = globals.yearlyTravelcardPriceDictionary[config.currentTravelcardZones.start][config.currentTravelcardZones.end];
-    let monthlyTravelcardPrice = globals.monthlyTravelcardPriceDictionary[config.currentTravelcardZones.start][config.currentTravelcardZones.end];
-    let yearlyTravelcardSaving = (12 * (totalAmountSpentOutsideTravelcardZones/totalNoOfTravelcardMonths + monthlyTravelcardPrice)) - yearlyTravelcardPrice;
-
-    console.log("These values are based on the oyster card history you supplied:\n");
-    console.log(`Total number of travelcard months: ${totalNoOfTravelcardMonths}`);
-    console.log(`Total amount spent on journeys outside travelcard zones (£): ${totalAmountSpentOutsideTravelcardZones}`);
-    console.log("Amount spent on journeys outside travelcard zones per travelcard month (£/month): " + totalAmountSpentOutsideTravelcardZones/totalNoOfTravelcardMonths);
-    console.log(`\nTotal rail journey travel time (hours): ${totalRailJourneyTravelTime}\n`);
-    console.log(`Cost of yearly travelcard for Zones ${config.currentTravelcardZones.start}-${config.currentTravelcardZones.end} (£): ${globals.yearlyTravelcardPriceDictionary[config.currentTravelcardZones.start][config.currentTravelcardZones.end]}`);
-    console.log(`Yearly saving with yearly travelcard over monthly travelcard, based on currently monthly costs (£):  ${yearlyTravelcardSaving}`);
-    console.log(`Monthly saving with yearly travelcard (£): ${yearlyTravelcardSaving/12}`);
+    let railJourneyMetrics = new metrics.RailJourneyMetrics(railJourneyList);
+    railJourneyMetrics.print();
 })();
