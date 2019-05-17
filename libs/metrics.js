@@ -8,20 +8,25 @@ class RailJourneyMetrics {
         this.monthlyTravelcardPrice = globals.monthlyTravelcardPriceDictionary[config.currentTravelcardZones.start][config.currentTravelcardZones.end];
     }
 
-    print() {
+    calculate() {
         this.totalNoOfTravelcardMonths = this._getTotalNumberOfTravelcardMonths();
         this.totalAmountSpentOutsideTravelcardZones = this._getMoneySpentOutsideTravelCardZones();
         this.totalRailJourneyTravelTime = this._getTotalTravelDuration();
         this.yearlyTravelcardSaving = this._getYearlyTravelcardSaving();
-    
+        this.monthlyTravelcardSaving = this.yearlyTravelcardSaving/12;
+        this.amountSpentperTravelcardMonth = this.totalAmountSpentOutsideTravelcardZones/this.totalNoOfTravelcardMonths;
+        return this;
+    }
+
+    print() {
         console.log("These values are based on the oyster card history you supplied:\n");
         console.log(`Total number of travelcard months: ${this.totalNoOfTravelcardMonths}`);
         console.log(`Total amount spent on journeys outside travelcard zones (£): ${this.totalAmountSpentOutsideTravelcardZones}`);
-        console.log("Amount spent on journeys outside travelcard zones per travelcard month (£/month): " + this.totalAmountSpentOutsideTravelcardZones/this.totalNoOfTravelcardMonths);
+        console.log("Amount spent on journeys outside travelcard zones per travelcard month (£/month): " + this.amountSpentperTravelcardMonth);
         console.log(`\nTotal rail journey travel time (hours): ${this.totalRailJourneyTravelTime}\n`);
         console.log(`Cost of yearly travelcard for Zones ${config.currentTravelcardZones.start}-${config.currentTravelcardZones.end} (£): ${this.yearlyTravelcardPrice}`);
         console.log(`Yearly saving with yearly travelcard over monthly travelcard, based on currently monthly costs (£):  ${this.yearlyTravelcardSaving}`);
-        console.log(`Monthly saving with yearly travelcard (£): ${this.yearlyTravelcardSaving/12}`);
+        console.log(`Monthly saving with yearly travelcard (£): ${this.monthlyTravelcardSaving}`);
     }
 
     _getYearlyTravelcardSaving() {

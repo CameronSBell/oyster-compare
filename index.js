@@ -44,5 +44,5 @@ const globals = require('./globals');
     defaults.writeAllDataToFile(railJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList);
 
     let railJourneyMetrics = new metrics.RailJourneyMetrics(railJourneyList);
-    railJourneyMetrics.print();
+    railJourneyMetrics.calculate().print();
 })();
