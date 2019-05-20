@@ -1,5 +1,6 @@
 const { RailJourneyInputRowConverter, BusJourneyInputRowConverter, TopUpEventInputRowConverter, SeasonTicketInputRowConverter } = require('./libs/inputDataConverter');
-const { InputRowEventChecker } = require('./libs/inputRowEventChecker')
+const { OysterHistoryConverter } = require("./libs/oysterHistoryConverter");
+const { InputRowEventChecker } = require('./libs/inputRowEventChecker');
 const defaults = require('./libs/defaults');
 const metrics = require('./libs/metrics');
 const config = require('./config');
@@ -7,16 +8,14 @@ const globals = require('./globals');
 
 ; (async function process() {
     let rawOysterHistoryWithDuplicates = await defaults.convertCsvToJSON();
-    let completeOysterHistory = defaults.removeDuplicatesFromArray(rawOysterHistoryWithDuplicates);
-
-    console.log(`You supplied ${completeOysterHistory.length} unique oyster history entries.`); 
-    console.log(`${rawOysterHistoryWithDuplicates.length - completeOysterHistory.length} duplicates were removed.`);
+    let oysterHistory = new OysterHistoryConverter(rawOysterHistoryWithDuplicates);
+    oysterHistory.removeDuplicates();
 
     railJourneyList = [];
     busJourneyList = [];
     seasonTicketAdditionList = [];
     topUpEventList = [];
-    for (inputRow of completeOysterHistory) {
+    for (inputRow of oysterHistory.getList()) {
         let check = new InputRowEventChecker(inputRow);
         if (check.isRailJourney()) {
             const entry = new RailJourneyInputRowConverter(inputRow).convert();

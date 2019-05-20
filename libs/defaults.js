@@ -27,14 +27,6 @@ async function convertCsvToJSON() {
     });
 }
 
-function removeDuplicatesFromArray(array) {
-    return array.filter((obj1, index) => {
-        return index === array.findIndex(obj2 => {
-            return JSON.stringify(obj1) === JSON.stringify(obj2);
-        })
-    });
-}
-
 function compareJourneys(a, b) {
     let compareCondition;
     if (a.startTime && b.startTime) {
@@ -104,7 +96,6 @@ module.exports = {
     convertCsvToJSON,
     compareJourneys,
     compareEvents,
-    removeDuplicatesFromArray,
     getEventType,
     writeAllDataToFile
 }
