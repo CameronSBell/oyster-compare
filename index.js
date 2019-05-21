@@ -2,9 +2,8 @@ const { RailJourneyInputRowConverter, BusJourneyInputRowConverter, TopUpEventInp
 const { OysterHistoryConverter } = require("./libs/oysterHistoryConverter");
 const { InputRowEventChecker } = require('./libs/inputRowEventChecker');
 const defaults = require('./libs/defaults');
+const arraySorting = require('./libs/arraySorting');
 const metrics = require('./libs/metrics');
-const config = require('./config');
-const globals = require('./globals');
 
 ; (async function process() {
     let rawOysterHistoryWithDuplicates = await defaults.convertCsvToJSON();
@@ -35,10 +34,10 @@ const globals = require('./globals');
         }
     };
 
-    railJourneyList.sort(defaults.compareJourneys);
-    busJourneyList.sort(defaults.compareJourneys);
-    topUpEventList.sort(defaults.compareEvents);
-    seasonTicketAdditionList.sort(defaults.compareEvents);
+    railJourneyList.sort(arraySorting.compareJourneys);
+    busJourneyList.sort(arraySorting.compareJourneys);
+    topUpEventList.sort(arraySorting.compareEvents);
+    seasonTicketAdditionList.sort(arraySorting.compareEvents);
 
     defaults.writeAllDataToFile(railJourneyList, busJourneyList, topUpEventList, seasonTicketAdditionList);
 
