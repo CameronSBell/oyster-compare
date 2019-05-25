@@ -15,7 +15,7 @@ async function convertCsvToJSON() {
         });
     });
 
-    return promise.then(async (files) => {
+    return await promise.then(async (files) => {
         for (let file of files) {
             let json = await csv(config.csvParserParameters).fromFile(config.csvInputDirectoryPath + "\\" + file);
             completeInputJSON.push(...json);

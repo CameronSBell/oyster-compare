@@ -13,8 +13,8 @@ class InputRowConverter {
     }
 
     _getStationType() {
-        let stationType = new RegExp(/\[(?<stationType>.+?)\]/);
-        return this.journeyDescription.match(stationType) ? this.journeyDescription.match(stationType).groups.stationType : null;
+        let stationTypeRegExp = new RegExp(/\[(?<stationType>.+?)\]/);
+        return this.journeyDescription.match(stationTypeRegExp) ? this.journeyDescription.match(stationTypeRegExp).groups.stationType : null;
     }
 
     _getDateTime(time) {
@@ -65,15 +65,10 @@ class RailJourneyInputRowConverter extends InputRowConverter {
     }
 
     _getStation(description) {
-        if (!description) {
-            return undefined;
-        }
         description = description.replace(/(\(.*?\))/, ""); //remove any round brackets and their contents
-        if (description.match(/\[(?<stationName>No touch-in)\]/)) {
-            return {
-                stationName: 'No touch-in',
-                stationType: undefined
-            }
+        let noTouchMatch = description.match(/\[(?<stationName>No touch-.+?)\]/);
+        if (noTouchMatch) {
+            return noTouchMatch.groups;
         }
         let stationAndStationTypeMatch = description.match(/(?<stationName>.+?)\s*(?:\[(?<stationType>.*?)\])?$/i);
         return stationAndStationTypeMatch ? stationAndStationTypeMatch.groups : null;//pick up station and transport method from each half
@@ -144,9 +139,9 @@ class TopUpEventInputRowConverter extends InputRowConverter {
     }
 
     _getLocation() {
+        //"Topped-up on touch in, Cannon Street [National Rail]"
         let location = new RegExp(/Topped-up on touch in(?:\,\s)(?<station>.+?)(?:(?:\s\[.+?\])|\s)$/);
         return this.journeyDescription.match(location) ? this.journeyDescription.match(location).groups.station : null;
-        //"Topped-up on touch in, Cannon Street [National Rail]"
     }
 }
 
