@@ -123,9 +123,16 @@ class BusJourneyInputRowConverter extends InputRowConverter {
     }
 }
 
-class TopUpEventInputRowConverter extends InputRowConverter {
+class EventConverter extends InputRowConverter {
+    _getStationType() {
+        let stationTypeRegExp = new RegExp(/\[(?<stationType>.+?)\]/);
+        return this.journeyDescription.match(stationTypeRegExp) ? this.journeyDescription.match(stationTypeRegExp).groups.stationType : null;
+    }
+}
+
+class TopUpEventInputRowConverter extends EventConverter {
     constructor(journey) {
-        super(journey)
+        super(journey);
     }
 
     convert() {
@@ -140,12 +147,12 @@ class TopUpEventInputRowConverter extends InputRowConverter {
 
     _getLocation() {
         //"Topped-up on touch in, Cannon Street [National Rail]"
-        let location = new RegExp(/Topped-up on touch in(?:\,\s)(?<station>.+?)(?:(?:\s\[.+?\])|\s)$/);
+        let location = new RegExp(/(?:\,\s)(?<station>.+?)(?:(?:\s\[.+?\])|\s)$/);
         return this.journeyDescription.match(location) ? this.journeyDescription.match(location).groups.station : null;
     }
 }
 
-class SeasonTicketInputRowConverter extends InputRowConverter {
+class SeasonTicketInputRowConverter extends EventConverter {
     constructor(row) {
         super(row);
     }
@@ -161,7 +168,7 @@ class SeasonTicketInputRowConverter extends InputRowConverter {
 
     _getLocation() {
         //"Season ticket added on touch in, Cannon Street [National Rail]"
-        let location = new RegExp(/Season ticket added on touch in(?:\,\s)(?<station>.+?)(?:(?:\s\[.+?\])|\s)$/);
+        let location = new RegExp(/(?:\,\s)(?<station>.+?)(?:(?:\s\[.+?\])|\s)$/);
         return this.journeyDescription.match(location) ? this.journeyDescription.match(location).groups.station : null;
     }
 }
