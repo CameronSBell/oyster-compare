@@ -6,4 +6,4 @@ function removeDuplicatesFromArray(array) {
     });
 }
 
-module.exports = { removeDuplicatesFromArray }
+module.exports = { removeDuplicateObjectsFromArray: removeDuplicatesFromArray }

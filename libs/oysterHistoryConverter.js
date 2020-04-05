@@ -7,7 +7,7 @@ class OysterHistoryConverter {
 
     removeDuplicates() {
         let lengthBeforeRemovingDuplicates = this.list.length;
-        this.list = arrayFunctions.removeDuplicatesFromArray(this.list);
+        this.list = arrayFunctions.removeDuplicateObjectsFromArray(this.list);
 
         console.log(`You supplied ${this.list.length} unique oyster history entries.`);
         console.log(`${lengthBeforeRemovingDuplicates - this.list.length} duplicates were removed.`);
