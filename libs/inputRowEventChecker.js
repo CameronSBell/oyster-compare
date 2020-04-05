@@ -4,19 +4,23 @@ class InputRowEventChecker {
     }
 
     isBusJourney() {
-        return (this.journeyDescription && this.journeyDescription.match(/Bus journey/) ? true : false);
+        return this.checkForString("Bus journey");
     }
 
     isSeasonTicketAddition() {
-        return (this.journeyDescription && this.journeyDescription.match(/Season ticket/)) ? true : false;
+        return this.checkForString("Season ticket")
     }
 
     isTopUp() {
-        return (this.journeyDescription && this.journeyDescription.match(/Topped-up/)) ? true : false;
+        return this.checkForString("Topped-up")
     }
 
     isRailJourney() {
-        return (this.journeyDescription && this.journeyDescription.match(/ to /)) ? true : false;
+        return this.checkForString(" to ");
+    }
+
+    checkForString(string) {
+        return (this.journeyDescription && this.journeyDescription.match(string)) ? true : false;
     }
 }
 
